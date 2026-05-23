@@ -8,8 +8,9 @@ import { useAuth } from '@/lib/auth-context';
 import { mockAnimeData } from '@/lib/mockData';
 import { Heart, Clock, LogOut } from 'lucide-react';
 import Link from 'next/link';
-import {useState, useEffect} from 'react'
-import axios from 'axios'
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+
 interface AnimeDetailPageProps {
   params: { id: string };
 }
@@ -24,53 +25,61 @@ export interface Server {
   serverLink: string;
 }
 
-export interface AnimeDetails{
+export interface AnimeDetails {
   id: string;
   title: string;
   animePoster: string;
   description: string;
   genres: string;
 }
+
 export interface Anime {
-  anime:AnimeDetails;
+  anime: AnimeDetails;
   episodes: Episode[];
 }
+
 export default function DashboardPage() {
-
-
-
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [anime, setAnime] = useState<AnimeDetails[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // ✅ FETCH FIXED
+  const { user, isAuthenticated, logout, favorites, watchHistory } =
+    useAuth();
+
+  // ✅ FETCH ANIME
   useEffect(() => {
     const fetchAnime = async () => {
       try {
+        setLoading(true);
+
         const res = await axios.get(
           'https://pneuexpress.online/anime/api.php?action=animes'
         );
 
-        // 🔥 IMPORTANT FIX (handle both shapes safely)
         setAnime(Array.isArray(res.data) ? res.data : res.data.data || []);
       } catch (err) {
         console.error(err);
         setAnime([]);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchAnime();
   }, []);
-  const { user, isAuthenticated, logout, favorites, watchHistory } = useAuth();
 
+  // ✅ Redirect if not logged in
   if (!isAuthenticated || !user) {
     redirect('/auth');
   }
 
-  // Get favorited anime
-  const favoritedAnime = anime.filter((anime) => favorites.includes(anime.id));
+  // ✅ Get favorited anime
+  const favoritedAnime = anime.filter((anime) =>
+    favorites.includes(anime.id)
+  );
 
-  // Get recently watched anime
+  // ✅ Get recently watched anime
   const recentlyWatched = Array.from(
     new Map(
       watchHistory
@@ -95,27 +104,42 @@ export default function DashboardPage() {
 
       <main className="flex-1">
         <div className="container mx-auto px-4 py-12">
-          {/* User Profile Header */}
+          {/* ✅ User Profile Header */}
           <div className="mb-12 flex flex-col md:flex-row items-center md:items-start gap-8">
             <img
               src={user.avatar}
               alt={user.username}
               className="w-32 h-32 rounded-full border-4 border-primary"
             />
+
             <div className="flex-1 text-center md:text-left space-y-4">
               <div>
-                <h1 className="text-4xl font-bold text-foreground">{user.username}</h1>
+                <h1 className="text-4xl font-bold text-foreground">
+                  {user.username}
+                </h1>
+
                 <p className="text-muted-foreground">{user.email}</p>
               </div>
 
               <div className="flex flex-wrap gap-6 justify-center md:justify-start">
                 <div>
-                  <p className="text-2xl font-bold text-primary">{watchHistory.length}</p>
-                  <p className="text-sm text-muted-foreground">الحلقات التي شاهدتها</p>
+                  <p className="text-2xl font-bold text-primary">
+                    {watchHistory.length}
+                  </p>
+
+                  <p className="text-sm text-muted-foreground">
+                    الحلقات التي شاهدتها
+                  </p>
                 </div>
+
                 <div>
-                  <p className="text-2xl font-bold text-accent">{favorites.length}</p>
-                  <p className="text-sm text-muted-foreground">المفضلة</p>
+                  <p className="text-2xl font-bold text-accent">
+                    {favorites.length}
+                  </p>
+
+                  <p className="text-sm text-muted-foreground">
+                    المفضلة
+                  </p>
                 </div>
               </div>
 
@@ -125,64 +149,97 @@ export default function DashboardPage() {
               >
                 <LogOut className="w-5 h-5" />
                 تسجيل الخروج
-
               </button>
             </div>
           </div>
 
-          {/* Favorites Section */}
-          {favoritedAnime.length > 0 && (
-            <section className="mb-16">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="p-3 rounded-lg bg-accent/20">
-                  <Heart className="w-6 h-6 text-accent" />
-                </div>
-                <h2 className="text-3xl font-bold text-foreground">المفضلة لديك</h2>
+          {/* ✅ Favorites Section */}
+          <section className="mb-16">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="p-3 rounded-lg bg-accent/20">
+                <Heart className="w-6 h-6 text-accent" />
               </div>
+
+              <h2 className="text-3xl font-bold text-foreground">
+                المفضلة لديك
+              </h2>
+            </div>
+
+            {loading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+                {[...Array(6)].map((_, index) => (
+                  <div
+                    key={index}
+                    className="animate-pulse rounded-xl overflow-hidden border border-border bg-card"
+                  >
+                    <div className="aspect-[2/3] bg-muted" />
+
+                    <div className="p-3 space-y-2">
+                      <div className="h-4 bg-muted rounded w-3/4" />
+                      <div className="h-3 bg-muted rounded w-1/2" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : favoritedAnime.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
                 {favoritedAnime.map((anime) => (
                   <AnimeCard key={anime.id} anime={anime} />
                 ))}
               </div>
-            </section>
-          )}
+            ) : null}
+          </section>
 
-          {/* Recently Watched Section */}
+          {/* ✅ Recently Watched Section */}
           {recentlyWatched.length > 0 && (
             <section className="mb-16">
               <div className="flex items-center gap-3 mb-8">
                 <div className="p-3 rounded-lg bg-primary/20">
                   <Clock className="w-6 h-6 text-primary" />
                 </div>
-                <h2 className="text-3xl font-bold text-foreground">Continue Watching</h2>
+
+                <h2 className="text-3xl font-bold text-foreground">
+                  Continue Watching
+                </h2>
               </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
-                {recentlyWatched.map((anime) => (
-                  anime && <AnimeCard key={anime.id} anime={anime} />
-                ))}
+                {recentlyWatched.map(
+                  (anime) =>
+                    anime && (
+                      <AnimeCard key={anime.id} anime={anime} />
+                    )
+                )}
               </div>
             </section>
           )}
 
-          {/* Empty State */}
-          {favorites.length === 0 && recentlyWatched.length === 0 && (
-            <div dir='rtl' className="flex flex-col items-center justify-center py-20 bg-card border border-border/50 rounded-lg space-y-6">
-              <div className="text-center space-y-2">
-                <p className="text-xl font-semibold text-foreground">
-                  البدء في استكشاف أنيمي!
-                </p>
-                <p className="text-muted-foreground">
-أضف الأنمي إلى مفضلاتك أو ابدأ بمشاهدته
-                </p>
-              </div>
-              <Link
-                href="/anime"
-                className="px-6 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-semibold transition-colors"
+          {/* ✅ Empty State */}
+          {!loading &&
+            favorites.length === 0 &&
+            recentlyWatched.length === 0 && (
+              <div
+                dir="rtl"
+                className="flex flex-col items-center justify-center py-20 bg-card border border-border/50 rounded-lg space-y-6"
               >
-تصفح الأنمي
-              </Link>
-            </div>
-          )}
+                <div className="text-center space-y-2">
+                  <p className="text-xl font-semibold text-foreground">
+                    البدء في استكشاف أنيمي!
+                  </p>
+
+                  <p className="text-muted-foreground">
+                    أضف الأنمي إلى مفضلاتك أو ابدأ بمشاهدته
+                  </p>
+                </div>
+
+                <Link
+                  href="/anime"
+                  className="px-6 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-semibold transition-colors"
+                >
+                  تصفح الأنمي
+                </Link>
+              </div>
+            )}
         </div>
       </main>
 
