@@ -39,9 +39,16 @@ export default function AnimeCard({ anime }: AnimeCardProps) {
       <div className="group cursor-pointer rounded-lg overflow-hidden bg-card border border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/20">
         <div className="relative overflow-hidden bg-muted h-80">
           <img
-            src={`https://pneuexpress.online/anime/image.php?url=${anime.poster}`}
+            src={
+              anime.poster
+                ? `https://pneuexpress.online/anime/image.php?url=${encodeURIComponent(anime.poster)}`
+                : '/fallback.jpg'
+            }
             alt={anime.title}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+            onError={(e) => {
+              e.currentTarget.src = '/fallback.jpg';
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           
