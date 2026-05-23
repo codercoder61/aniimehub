@@ -53,7 +53,7 @@ useEffect(() => {
                 نتائج البحث
               </h1>
               <p  className="text-muted-foreground">
-                وجد {results.length} نتيجة لأجل &quot;{query}&quot;
+                وجد {anime.length} نتيجة لأجل &quot;{query}&quot;
               </p>
             </div>
           )}
