@@ -52,7 +52,7 @@ export default function AnimeDetailPage() {
 
     const fetchAnime = async () => {
       const res = await axios.get(
-        `https://anime4up.free.nf/api.php?action=anime&id=${id}`
+        `https://pneuexpress.online/anime/api.php?action=anime&id=${id}`
       );
       setAnime(res.data);
     };
@@ -66,7 +66,7 @@ export default function AnimeDetailPage() {
 
     const fetchAnimeEpisodes = async () => {
       const res = await axios.get(
-        `https://anime4up.free.nf/api.php?action=episodes&animeId=${id}`
+        `https://pneuexpress.online/anime/api.php?action=episodes&animeId=${id}`
       );
       console.log(res.data)
       setAnimeEpisodes(res.data);
@@ -104,7 +104,7 @@ export default function AnimeDetailPage() {
             {/* Poster */}
             <div>
               <img
-                src={`https://anime4up.free.nf/image.php?url=${anime.poster}`}
+                src={`https://pneuexpress.online/anime/image.php?url=${anime.poster}`}
                 alt={anime.title}
                 className="w-48 h-72 object-cover rounded-lg border-4 border-card shadow-2xl"
               />
