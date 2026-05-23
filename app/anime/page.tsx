@@ -21,34 +21,35 @@ export default function AnimeListPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [anime, setAnime] = useState<AnimeDetails[]>([]);
+  const [loading, setLoading] = useState(true); // ✅ NEW
 
-  // ✅ FETCH FIXED
   useEffect(() => {
     const fetchAnime = async () => {
+      setLoading(true); // start loading
+
       try {
         const res = await axios.get(
           'https://pneuexpress.online/anime/api.php?action=animes'
         );
 
-        // 🔥 IMPORTANT FIX (handle both shapes safely)
         setAnime(Array.isArray(res.data) ? res.data : res.data.data || []);
       } catch (err) {
         console.error(err);
         setAnime([]);
+      } finally {
+        setLoading(false); // stop loading
       }
     };
 
     fetchAnime();
   }, []);
 
-  // ✅ FILTER SAFE
   const filteredAnime = useMemo(() => {
     let result = anime;
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter((a) =>
-
         a.title.toLowerCase().includes(query)
       );
     }
@@ -56,7 +57,6 @@ export default function AnimeListPage() {
     return result;
   }, [anime, searchQuery]);
 
-  // ✅ PAGINATION SAFE
   const totalPages = Math.ceil(filteredAnime.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
@@ -71,7 +71,7 @@ export default function AnimeListPage() {
         <div className="container mx-auto px-4 py-12">
 
           {/* SEARCH */}
-          <div dir="rtl"  className="mb-8">
+          <div dir="rtl" className="mb-8">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5" />
               <input
@@ -86,14 +86,18 @@ export default function AnimeListPage() {
             </div>
           </div>
 
-          {/* RESULTS */}
-          {filteredAnime.length === 0 ? (
+          {/* LOADER */}
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <div className="w-10 h-10 border-4 border-gray-300 border-t-black rounded-full animate-spin"></div>
+            </div>
+          ) : filteredAnime.length === 0 ? (
             <p className="text-center text-muted-foreground">
               No anime found
             </p>
           ) : (
             <>
-              <div dir="rtl"  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div dir="rtl" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {paginatedAnime.map((anime) => (
                   <AnimeCard key={anime.id} anime={anime} />
                 ))}
