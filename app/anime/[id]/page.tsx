@@ -67,7 +67,6 @@ const [animeEpisodes, setAnimeEpisodes] = useState<Episode[]>([]);
       const res = await axios.get(
         `https://pneuexpress.online/anime/api.php?action=episodes&animeId=${id}`
       );
-      console.log(res.data)
       setAnimeEpisodes(res.data);
     };
 
