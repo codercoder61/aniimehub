@@ -54,7 +54,6 @@ export default function AnimeDetailPage() {
       const res = await axios.get(
         `https://anime4up.free.nf/api.php?action=anime&id=${id}`
       );
-      console.log(res.data)
       setAnime(res.data);
     };
 
