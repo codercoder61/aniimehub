@@ -83,7 +83,7 @@ export const mockAnimeData: Anime[] = [
     episodes : [],
   },
   {
-    id: '2',
+    id: '5',
     title: 'Aishiteru Game wo Owarasetai',
     poster: 'https://w1.anime4up.rest/wp-content/uploads/2026/04/Ashampoo_Snap_2026.04.14_12h20m42s_008_.png',
     coverImage: 'https://nami.news/wordpress/wp-content/uploads/2025/06/Aishiteru-Game-o-Owarasetai-Manga-cover-1-1-e1749734501641.jpg',
