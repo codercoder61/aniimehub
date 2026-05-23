@@ -27,7 +27,7 @@ export default function Home() {
     {
       icon: Server,
       label: 'إجمالي الخوادم',
-      value: '100K+',
+      value: '300K+',
     }
   ];
 
