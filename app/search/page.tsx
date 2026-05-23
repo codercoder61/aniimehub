@@ -58,7 +58,7 @@ useEffect(() => {
             </div>
           )}
 
-          {results.length === 0 ? (
+          {anime.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 bg-card border border-border/50 rounded-lg">
               <p className="text-lg text-muted-foreground mb-4">No results found</p>
               <p className="text-sm text-muted-foreground">
@@ -67,7 +67,7 @@ useEffect(() => {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {results.map((anime) => (
+              {anime.map((anime) => (
                 <AnimeCard key={anime.id} anime={anime} />
               ))}
             </div>
