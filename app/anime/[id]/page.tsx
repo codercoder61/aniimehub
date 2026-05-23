@@ -89,7 +89,9 @@ export default function AnimeDetailPage() {
     }
   }, [selectedEpisode, anime, isAuthenticated, addToWatchHistory]);
 
-
+  if (anime) {
+    return <div className="p-10 text-white">Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
