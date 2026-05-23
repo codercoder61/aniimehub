@@ -26,7 +26,7 @@ useEffect(() => {
     const fetchAnime = async () => {
       try {
         const res = await axios.get(
-          `/api.php?action=search&q=${query}`
+          `https://pneuexpress.online/anime/api.php?action=search&q=${query}`
         );
 
         // 🔥 IMPORTANT FIX (handle both shapes safely)
