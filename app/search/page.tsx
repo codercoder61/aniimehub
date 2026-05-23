@@ -26,7 +26,7 @@ useEffect(() => {
     const fetchAnime = async () => {
       try {
         const res = await axios.get(
-          'https://anime4up.free.nf/api.php?action=animes'
+          'https://pneuexpress.online/anime/api.php?action=animes'
         );
 
         // 🔥 IMPORTANT FIX (handle both shapes safely)
