@@ -48,7 +48,7 @@ export default function DashboardPage() {
     const fetchAnime = async () => {
       try {
         const res = await axios.get(
-          'https://witanime-production.up.railway.app/api/animes/all'
+          'https://pneuexpress.online/anime/api.php?action=animes'
         );
 
         // 🔥 IMPORTANT FIX (handle both shapes safely)
