@@ -145,17 +145,7 @@ const [animeEpisodes, setAnimeEpisodes] = useState<Episode[]>([]);
 
               {/* ✅ ONLY change kept (responsive buttons) */}
               <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                <button
-                  onClick={() => {
-                    if (selectedEpisode) {
-                      document.getElementById('player')?.scrollIntoView({ behavior: 'smooth' });
-                    }
-                  }}
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 sm:px-6 py-3 rounded-lg font-semibold transition-colors"
-                >
-                  <Play className="w-5 h-5" />
-                  شاهد الآن
-                </button>
+                
 <a
 href={anime.trailer}                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 sm:px-6 py-3 rounded-lg font-semibold transition-colors"
                 >
