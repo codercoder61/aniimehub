@@ -24,7 +24,6 @@ export interface AnimeDetails {
 
 export interface Anime {
   anime: AnimeDetails;
-  episodes: Episode[];
 }
 
 export default function AnimeDetailPage() {
@@ -41,7 +40,7 @@ export default function AnimeDetailPage() {
   };
 
   const [anime, setAnime] = useState<Anime | null>(null);
-  const [animeEpisodes, setAnimeEpisodes] = useState(null);
+const [animeEpisodes, setAnimeEpisodes] = useState<Episode[]>([]);
   const [selectedEpisode, setSelectedEpisode] = useState<Episode | null>(null);
   const [isFavorited, setIsFavorited] = useState(false);
 
@@ -77,11 +76,11 @@ export default function AnimeDetailPage() {
 
 
   useEffect(() => {
-    if (animeEpisodes?.length) {
-      setSelectedEpisode(animeEpisodes[0]);
-      setIsFavorited(isAuthFavorited(anime.id));
-    }
-  }, [anime, isAuthFavorited]);
+  if (anime && animeEpisodes.length > 0) {
+    setSelectedEpisode(animeEpisodes[0]);
+    setIsFavorited(isAuthFavorited(anime.id));
+  }
+}, [anime, animeEpisodes, isAuthFavorited]);
 
   useEffect(() => {
     if (selectedEpisode && anime && isAuthenticated) {
