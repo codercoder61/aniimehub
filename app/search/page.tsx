@@ -1,12 +1,11 @@
 'use client';
 
-import { Suspense, useMemo ,useState, useEffect} from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AnimeCard from '@/components/AnimeCard';
-import { mockAnimeData } from '@/lib/mockData';
-import axios from 'axios'
+import axios from 'axios';
 
 export interface AnimeDetails {
   id: string;
@@ -16,30 +15,42 @@ export interface AnimeDetails {
   genres: string;
 }
 
-
 function SearchContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
-    const [anime, setAnime] = useState([]);
-  
-useEffect(() => {
+
+  const [anime, setAnime] = useState<AnimeDetails[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!query) {
+      setAnime([]);
+      return;
+    }
+
     const fetchAnime = async () => {
       try {
+        setLoading(true);
+
         const res = await axios.get(
-          `https://pneuexpress.online/anime/api.php?action=search&q=${query}`
+          `https://pneuexpress.online/anime/api.php?action=search&q=${encodeURIComponent(query)}`
         );
 
-        // 🔥 IMPORTANT FIX (handle both shapes safely)
-        setAnime(Array.isArray(res.data) ? res.data : res.data.data || []);
+        setAnime(
+          Array.isArray(res.data)
+            ? res.data
+            : res.data.data || []
+        );
       } catch (err) {
         console.error(err);
         setAnime([]);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchAnime();
-  }, []);
-
+  }, [query]); // ✅ refetch when query changes
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -52,15 +63,25 @@ useEffect(() => {
               <h1 className="text-4xl font-bold text-foreground mb-2">
                 نتائج البحث
               </h1>
-              <p  className="text-muted-foreground">
-                وجد {anime.length} نتيجة لأجل &quot;{query}&quot;
+
+              <p className="text-muted-foreground">
+                {loading
+                  ? 'جاري البحث...'
+                  : `وجد ${anime.length} نتيجة لأجل "${query}"`}
               </p>
             </div>
           )}
 
-          {anime.length === 0 ? (
+          {loading ? (
+            <div className="flex justify-center py-20">
+              <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : anime.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 bg-card border border-border/50 rounded-lg">
-              <p className="text-lg text-muted-foreground mb-4">No results found</p>
+              <p className="text-lg text-muted-foreground mb-4">
+                No results found
+              </p>
+
               <p className="text-sm text-muted-foreground">
                 Try searching with different keywords
               </p>
