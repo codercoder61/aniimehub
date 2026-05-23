@@ -26,7 +26,7 @@ useEffect(() => {
     const fetchAnime = async () => {
       try {
         const res = await axios.get(
-          'https://pneuexpress.online/anime/api.php?action=animes'
+          `/api.php?action=search&q=${query}`
         );
 
         // 🔥 IMPORTANT FIX (handle both shapes safely)
@@ -39,25 +39,7 @@ useEffect(() => {
 
     fetchAnime();
   }, []);
- const results = useMemo(() => {
-  if (!query) return [];
 
-  const searchQuery = query.toLowerCase().trim();
-
-  return anime.filter((item) => {
-    const title = (item.title || "").toLowerCase();
-    const description = (item.description || "").toLowerCase();
-    const genres = (item.genres || "")
-      .split(/[،,]/)
-      .map((g) => g.trim().toLowerCase());
-
-    return (
-      title.includes(searchQuery) ||
-      description.includes(searchQuery) ||
-      genres.some((genre) => genre.includes(searchQuery))
-    );
-  });
-}, [query, anime]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
