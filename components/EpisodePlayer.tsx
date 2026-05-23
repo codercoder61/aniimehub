@@ -29,7 +29,7 @@ export default function EpisodePlayer({ episode }: Props) {
   
       const fetchAnime = async () => {
         try {
-          const res = await axios.get(`https://anime4up.free.nf/api.php?action=servers&episodeId=${episode.id}`);
+          const res = await axios.get(`https://pneuexpress.online/anime/api.php?action=servers&episodeId=${episode.id}`);
           setServers(res.data)
           setSelectedServer(res.data[0])
         } catch (err) {
