@@ -52,32 +52,7 @@ export default function Footer() {
           </div>
 
           {/* Social Media */}
-          <div>
-            <h3 className="font-semibold mb-4">تابعنا</h3>
-            <div className="flex gap-4">
-              <Link
-                href="https://web.facebook.com/garou.warwick"
-                className="p-2 rounded-lg bg-muted hover:bg-primary hover:text-primary-foreground transition-colors"
-                aria-label="Facebook"
-              >
-                <Facebook className="w-5 h-5" />
-              </Link>
-              <Link
-                href="https://www.instagram.com/mohamedkn173/"
-                className="p-2 rounded-lg bg-muted hover:bg-primary hover:text-primary-foreground transition-colors"
-                aria-label="Instagram"
-              >
-                <Instagram className="w-5 h-5" />
-              </Link>
-              <Link
-                href="https://www.youtube.com/@Warxwi"
-                className="p-2 rounded-lg bg-muted hover:bg-primary hover:text-primary-foreground transition-colors"
-                aria-label="YouTube"
-              >
-                <Youtube className="w-5 h-5" />
-              </Link>
-            </div>
-          </div>
+         
         </div>
 
         {/* Divider */}
