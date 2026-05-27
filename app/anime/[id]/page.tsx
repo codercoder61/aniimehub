@@ -5,7 +5,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import EpisodePlayer from '@/components/EpisodePlayer';
 import { useAuth } from '@/lib/auth-context';
-import { Play, Heart, Flag } from 'lucide-react';
+import { Heart, Flag, Loader2 } from 'lucide-react';
 import axios from 'axios';
 import { useParams } from 'next/navigation';
 
@@ -14,82 +14,129 @@ export interface Episode {
   animeId: number;
 }
 
-export interface AnimeDetails {
+export interface Anime {
   id: string;
   title: string;
-  animePoster: string;
+  poster: string;
   description: string;
   genres: string;
-}
-
-export interface Anime {
-  anime: AnimeDetails;
+  airDate: string;
+  duration: string;
+  season: string;
+  trailer: string;
+  episodes: number;
 }
 
 export default function AnimeDetailPage() {
   const params = useParams();
   const id = params?.id as string;
 
+  const [anime, setAnime] = useState<Anime | null>(null);
+  const [animeEpisodes, setAnimeEpisodes] = useState<Episode[]>([]);
+  const [selectedEpisode, setSelectedEpisode] = useState<Episode | null>(null);
+
+  const [animeLoading, setAnimeLoading] = useState(true);
+  const [episodesLoading, setEpisodesLoading] = useState(true);
+  const [playerLoading, setPlayerLoading] = useState(false);
+
+  const [isFavorited, setIsFavorited] = useState(false);
+
+  const {
+    isFavorited: isAuthFavorited,
+    toggleFavorite,
+    addToWatchHistory,
+    isAuthenticated,
+  } = useAuth();
+
   const sendEmail = async () => {
     await fetch('/api/send-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: `User reported anime with id=${id}` }),
+      body: JSON.stringify({
+        message: `User reported anime with id=${id}`,
+      }),
     });
+
     alert('Anime reported');
   };
 
-  const [anime, setAnime] = useState<Anime | null>(null);
-const [animeEpisodes, setAnimeEpisodes] = useState<Episode[]>([]);
-  const [selectedEpisode, setSelectedEpisode] = useState<Episode | null>(null);
-  const [isFavorited, setIsFavorited] = useState(false);
-
-  const { isFavorited: isAuthFavorited, toggleFavorite, addToWatchHistory, isAuthenticated } = useAuth();
-
+  // Fetch anime details
   useEffect(() => {
     if (!id) return;
 
     const fetchAnime = async () => {
-      const res = await axios.get(
-        `https://pneuexpress.online/anime/api.php?action=anime&id=${id}`
-      );
-      setAnime(res.data);
+      try {
+        setAnimeLoading(true);
+
+        const res = await axios.get(
+          `https://pneuexpress.online/anime/api.php?action=anime&id=${id}`
+        );
+
+        setAnime(res.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setAnimeLoading(false);
+      }
     };
 
     fetchAnime();
   }, [id]);
 
-
+  // Fetch episodes
   useEffect(() => {
     if (!id) return;
 
     const fetchAnimeEpisodes = async () => {
-      const res = await axios.get(
-        `https://pneuexpress.online/anime/api.php?action=episodes&animeId=${id}`
-      );
-      setAnimeEpisodes(res.data);
+      try {
+        setEpisodesLoading(true);
+
+        const res = await axios.get(
+          `https://pneuexpress.online/anime/api.php?action=episodes&animeId=${id}`
+        );
+
+        setAnimeEpisodes(res.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setEpisodesLoading(false);
+      }
     };
 
     fetchAnimeEpisodes();
   }, [id]);
 
-
+  // Set first episode
   useEffect(() => {
-  if (anime && animeEpisodes.length > 0) {
-    setSelectedEpisode(animeEpisodes[0]);
-    setIsFavorited(isAuthFavorited(anime.id));
-  }
-}, [anime, animeEpisodes, isAuthFavorited]);
+    if (anime && animeEpisodes.length > 0) {
+      setSelectedEpisode(animeEpisodes[0]);
+      setIsFavorited(isAuthFavorited(anime.id));
+    }
+  }, [anime, animeEpisodes, isAuthFavorited]);
 
+  // Watch history
   useEffect(() => {
     if (selectedEpisode && anime && isAuthenticated) {
       addToWatchHistory(anime.id, selectedEpisode.id, 0);
     }
   }, [selectedEpisode, anime, isAuthenticated, addToWatchHistory]);
 
- if (!anime) {
-  return <div className="p-10 text-white">Loading...</div>;
-}
+  // Main loader
+  if (animeLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!anime) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-white">
+        Anime not found
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -97,8 +144,10 @@ const [animeEpisodes, setAnimeEpisodes] = useState<Episode[]>([]);
 
       <main style={{ marginTop: '50px' }} className="flex-1">
         <div className="container mx-auto px-4">
-          <div style={{ direction: 'rtl' }} className="flex flex-col md:flex-row gap-8 mb-12">
-            
+          <div
+            style={{ direction: 'rtl' }}
+            className="flex flex-col md:flex-row gap-8 mb-12"
+          >
             {/* Poster */}
             <div>
               <img
@@ -118,15 +167,15 @@ const [animeEpisodes, setAnimeEpisodes] = useState<Episode[]>([]);
                 {anime.description}
               </p>
 
-              <p className="text-lg text-foreground leading-relaxed max-w-2xl">
+              <p className="text-lg text-foreground">
                 {anime.airDate}
               </p>
 
-<p className="text-lg text-foreground leading-relaxed max-w-2xl">
+              <p className="text-lg text-foreground">
                 {anime.duration}
               </p>
 
-<p className="text-lg text-foreground leading-relaxed max-w-2xl">
+              <p className="text-lg text-foreground">
                 {anime.season}
               </p>
 
@@ -142,13 +191,16 @@ const [animeEpisodes, setAnimeEpisodes] = useState<Episode[]>([]);
                 ))}
               </div>
 
-              {/* ✅ ONLY change kept (responsive buttons) */}
+              {/* Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                
-<a href={anime.trailer} target="_blank" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 sm:px-6 py-3 rounded-lg font-semibold transition-colors"
+                <a
+                  href={anime.trailer}
+                  target="_blank"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 sm:px-6 py-3 rounded-lg font-semibold transition-colors"
                 >
-                العرض التشويقي
+                  العرض التشويقي
                 </a>
+
                 <button
                   onClick={() => {
                     toggleFavorite(anime.id);
@@ -160,8 +212,15 @@ const [animeEpisodes, setAnimeEpisodes] = useState<Episode[]>([]);
                       : 'border-border/50 text-foreground hover:border-primary/50'
                   }`}
                 >
-                  <Heart className={`w-5 h-5 ${isFavorited ? 'fill-current' : ''}`} />
-                  {isFavorited ? 'مفضل' : 'أضف إلى قائمة الأنمي المفضلة'}
+                  <Heart
+                    className={`w-5 h-5 ${
+                      isFavorited ? 'fill-current' : ''
+                    }`}
+                  />
+
+                  {isFavorited
+                    ? 'مفضل'
+                    : 'أضف إلى قائمة الأنمي المفضلة'}
                 </button>
 
                 <button
@@ -176,36 +235,60 @@ const [animeEpisodes, setAnimeEpisodes] = useState<Episode[]>([]);
           </div>
 
           {/* Player */}
-          {selectedEpisode && (
-            <section id="player" className="mb-16">
-              <EpisodePlayer episode={selectedEpisode} />
-            </section>
-          )}
+          <section id="player" className="mb-16">
+            {playerLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="w-10 h-10 animate-spin text-primary" />
+              </div>
+            ) : (
+              selectedEpisode && (
+                <EpisodePlayer episode={selectedEpisode} />
+              )
+            )}
+          </section>
 
           {/* Episodes */}
           <section dir="rtl" className="mb-16">
             <h2 className="text-3xl font-bold mb-6">
-             ({anime.episodes})
+              ({anime.episodes})
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {animeEpisodes && animeEpisodes.map((episode, index) => (
-                <button
-                  key={episode.id}
-                  onClick={() => {
-                    document.getElementById('player')?.scrollIntoView({ behavior: 'smooth' });
-                    setSelectedEpisode(episode);
-                  }}
-                  className={`p-4 rounded-lg border-2 ${
-                    selectedEpisode?.id === episode.id
-                      ? 'border-primary bg-primary/10'
-                      : 'border-border/50 bg-card hover:border-primary/50'
-                  }`}
-                >
-                  حلقة {index + 1}
-                </button>
-              ))}
-            </div>
+            {episodesLoading ? (
+              <div className="flex justify-center py-10">
+                <Loader2 className="w-10 h-10 animate-spin text-primary" />
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {animeEpisodes.map((episode, index) => (
+                  <button
+                    key={episode.id}
+                    onClick={() => {
+                      setPlayerLoading(true);
+
+                      document
+                        .getElementById('player')
+                        ?.scrollIntoView({
+                          behavior: 'smooth',
+                        });
+
+                      setSelectedEpisode(episode);
+
+                      // fake delay until player loads
+                      setTimeout(() => {
+                        setPlayerLoading(false);
+                      }, 800);
+                    }}
+                    className={`p-4 rounded-lg border-2 ${
+                      selectedEpisode?.id === episode.id
+                        ? 'border-primary bg-primary/10'
+                        : 'border-border/50 bg-card hover:border-primary/50'
+                    }`}
+                  >
+                    حلقة {index + 1}
+                  </button>
+                ))}
+              </div>
+            )}
           </section>
         </div>
       </main>
