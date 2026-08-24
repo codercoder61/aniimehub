@@ -107,7 +107,7 @@ export const mockAnimeData: Anime[] = [
   " فنتازيا",
   "سحر","كوميدي",'أكشن'
 ],
-    totalEpisodes: 23,
+    totalEpisodes: 170,
     episodes : [],
   }
 ];
