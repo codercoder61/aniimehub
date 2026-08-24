@@ -5,7 +5,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import EpisodePlayer from '@/components/EpisodePlayer';
 import { useAuth } from '@/lib/auth-context';
-import { Heart, Flag, Loader2 } from 'lucide-react';
+import { Bookmark, BookmarkCheck, Heart, Flag, Loader2 } from 'lucide-react';
 import axios from 'axios';
 import { useParams } from 'next/navigation';
 
@@ -40,6 +40,8 @@ export default function AnimeDetailPage() {
   const [playerLoading, setPlayerLoading] = useState(false);
 
   const [isFavorited, setIsFavorited] = useState(false);
+  const [bookmarkedEpisodes, setBookmarkedEpisodes] = useState<string[]>([]);
+  const [bookmarksHydrated, setBookmarksHydrated] = useState(false);
 
   const {
     isFavorited: isAuthFavorited,
@@ -58,6 +60,35 @@ export default function AnimeDetailPage() {
     });
 
     alert('Anime reported');
+  };
+
+  // Bookmarks are stored in this browser only.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('animeHub_episodeBookmarks');
+      if (saved) setBookmarkedEpisodes(JSON.parse(saved));
+    } catch (error) {
+      console.error('[v0] Unable to load episode bookmarks:', error);
+    } finally {
+      setBookmarksHydrated(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (bookmarksHydrated) {
+      localStorage.setItem(
+        'animeHub_episodeBookmarks',
+        JSON.stringify(bookmarkedEpisodes)
+      );
+    }
+  }, [bookmarkedEpisodes, bookmarksHydrated]);
+
+  const toggleEpisodeBookmark = (episodeId: string) => {
+    setBookmarkedEpisodes((current) =>
+      current.includes(episodeId)
+        ? current.filter((item) => item !== episodeId)
+        : [...current, episodeId]
+    );
   };
 
   // Fetch anime details
@@ -259,34 +290,44 @@ export default function AnimeDetailPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {animeEpisodes.map((episode, index) => (
-                  <button
-                    key={episode.id}
-                    onClick={() => {
-                      setPlayerLoading(true);
+                {animeEpisodes.map((episode, index) => {
+                  const isBookmarked = bookmarkedEpisodes.includes(episode.id);
 
-                      document
-                        .getElementById('player')
-                        ?.scrollIntoView({
-                          behavior: 'smooth',
-                        });
-
-                      setSelectedEpisode(episode);
-
-                      // fake delay until player loads
-                      setTimeout(() => {
-                        setPlayerLoading(false);
-                      }, 800);
-                    }}
-                    className={`p-4 rounded-lg border-2 ${
-                      selectedEpisode?.id === episode.id
-                        ? 'border-primary bg-primary/10'
-                        : 'border-border/50 bg-card hover:border-primary/50'
-                    }`}
-                  >
-                    حلقة {index + 1}
-                  </button>
-                ))}
+                  return (
+                    <div
+                      key={episode.id}
+                      className={`flex items-center gap-3 rounded-lg border-2 p-2 transition-colors ${
+                        selectedEpisode?.id === episode.id
+                          ? 'border-primary bg-primary/10'
+                          : 'border-border/50 bg-card hover:border-primary/50'
+                      }`}
+                    >
+                      <button
+                        onClick={() => {
+                          setPlayerLoading(true);
+                          document.getElementById('player')?.scrollIntoView({
+                            behavior: 'smooth',
+                          });
+                          setSelectedEpisode(episode);
+                          setTimeout(() => setPlayerLoading(false), 800);
+                        }}
+                        className="flex-1 p-3 text-right font-medium text-foreground"
+                      >
+                        حلقة {index + 1}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => toggleEpisodeBookmark(episode.id)}
+                        aria-pressed={isBookmarked}
+                        aria-label={isBookmarked ? `إلغاء حفظ الحلقة ${index + 1}` : `حفظ الحلقة ${index + 1}`}
+                        title={isBookmarked ? 'إلغاء الحفظ' : 'حفظ الحلقة'}
+                        className={`rounded-md p-2 ${isBookmarked ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                      >
+                        {isBookmarked ? <BookmarkCheck /> : <Bookmark />}
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </section>
