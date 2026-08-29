@@ -41,7 +41,7 @@ export default function AnimeCard({ anime }: AnimeCardProps) {
           <img
             src={
               anime.poster
-                ? `https://pneuexpress.online/anime/image.php?url=${encodeURIComponent(anime.poster)}`
+                ? `${anime.poster}`
                 : '/fallback.jpg'
             }
             alt={anime.title}
