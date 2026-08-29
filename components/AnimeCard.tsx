@@ -39,6 +39,7 @@ export default function AnimeCard({ anime }: AnimeCardProps) {
       <div className="group cursor-pointer rounded-lg overflow-hidden bg-card border border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/20">
         <div className="relative overflow-hidden bg-muted h-80">
           <img
+            referrerpolicy="no-referrer"
             src={
               anime.poster
                 ? `${anime.poster}`
