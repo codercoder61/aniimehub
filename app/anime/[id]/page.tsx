@@ -151,7 +151,7 @@ export default function AnimeDetailPage() {
             {/* Poster */}
             <div>
               <img
-                src={`https://pneuexpress.online/anime/image.php?url=${anime.poster}`}
+                src={`${anime.poster}`}
                 alt={anime.title}
                 className="w-48 h-72 object-cover rounded-lg border-4 border-card shadow-2xl"
               />
